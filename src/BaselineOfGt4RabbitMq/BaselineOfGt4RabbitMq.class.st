@@ -23,6 +23,6 @@ BaselineOfGt4RabbitMq class >> loadLepiter [
 BaselineOfGt4RabbitMq >> baseline: spec [
 	<baseline>
 		^ spec for: #common do: [
-			spec package: 'Gt4RabbitMq'
+			spec package: 'RabbitMq-API'
 		]
 ]
