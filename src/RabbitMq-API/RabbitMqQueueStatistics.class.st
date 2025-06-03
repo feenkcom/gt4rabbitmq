@@ -25,13 +25,13 @@ RabbitMqQueueStatistics >> consumerDetails [
 ]
 
 { #category : #'as yet unclassified' }
-RabbitMqQueueStatistics >> consumerUtilisation [
-	^ self rawData at: 'consumer_utilisation'
+RabbitMqQueueStatistics >> consumers [
+	^ self rawData at: 'consumers'
 ]
 
 { #category : #'as yet unclassified' }
-RabbitMqQueueStatistics >> consumers [
-	^ self rawData at: 'consumers'
+RabbitMqQueueStatistics >> consumerUtilisation [
+	^ self rawData at: 'consumer_utilisation'
 ]
 
 { #category : #'as yet unclassified' }
@@ -71,7 +71,7 @@ RabbitMqQueueStatistics >> headMessageTimestamp [
 
 { #category : #'as yet unclassified' }
 RabbitMqQueueStatistics >> idleSince [
-	^ self rawData at: 'idle_since'
+	^ self rawData at: 'idle_since' ifAbsent: [ '<active>' ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -155,6 +155,11 @@ RabbitMqQueueStatistics >> messagesReadyRam [
 ]
 
 { #category : #accessing }
+RabbitMqQueueStatistics >> messageStatistics [
+	^ self rawData at: 'message_stats'
+]
+
+{ #category : #accessing }
 RabbitMqQueueStatistics >> messagesUnacknowledged [
 	^ self rawData at: 'messages_unacknowledged'
 ]
@@ -212,6 +217,40 @@ RabbitMqQueueStatistics >> state [
 { #category : #accessing }
 RabbitMqQueueStatistics >> storageVersion [
 	^ self rawData at: 'storage_version'
+]
+
+{ #category : #u }
+RabbitMqQueueStatistics >> summaryAttributes [
+	| messageStats incoming deliver ack |
+
+	messageStats := self messageStatistics.
+	incoming := String streamContents: [ :stream |
+		stream
+			print: (messageStats at: 'get');
+			<< ' (';
+			print: ((messageStats at: 'get_details') at: 'rate');
+			<< '/s)' ].
+	deliver := String streamContents: [ :stream |
+		stream
+			print: (messageStats at: 'deliver');
+			<< ' (';
+			print: ((messageStats at: 'deliver_details') at: 'rate');
+			<< '/s)' ].
+	ack := String streamContents: [ :stream |
+		stream
+			print: (messageStats at: 'ack');
+			<< ' (';
+			print: ((messageStats at: 'ack_details') at: 'rate');
+			<< '/s)' ].
+	^ {
+		{ 'Ready'. self messagesReady. }.
+		{ 'Unacknowledged'. self messagesUnacknowledged }.
+		{ 'Incoming (/s)'. incoming. }.
+		{ 'Deliver (/s)'. deliver. }.
+		{ 'Ack (/s)'. ack. }.
+		{ 'Consumers'. self consumers. }.
+		{ 'Idle since'. self idleSince }.
+	}.
 ]
 
 { #category : #accessing }

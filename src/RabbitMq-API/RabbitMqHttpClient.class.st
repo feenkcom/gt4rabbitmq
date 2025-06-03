@@ -81,6 +81,22 @@ RabbitMqHttpClient >> delete: pathSegments [
     ^ self request: 'DELETE' path: pathSegments body: nil
 ]
 
+{ #category : #private }
+RabbitMqHttpClient >> deletePath: pathSegments [
+    | client znUrl |
+
+    znUrl := baseUrl asZnUrl.
+    znUrl
+    	addPathSegments: pathSegments;
+        username: username;
+        password: password.
+    client := ZnClient new.
+    client delete: znUrl.
+	client isSuccess ifFalse:
+		[ RabbitMqClientError signalClient: client ].
+	^ client.
+]
+
 { #category : #'api - accessing' }
 RabbitMqHttpClient >> deprecatedFeatures [
     ^ self get: { 'deprecated-features' }
@@ -156,6 +172,11 @@ RabbitMqHttpClient >> post: pathSegments body: body [
 ]
 
 { #category : #'api - accessing' }
+RabbitMqHttpClient >> purgeQueue: queueNameString vhost: vHostString [
+    ^ self deletePath: { 'queues'. vHostString. queueNameString. 'contents'. }
+]
+
+{ #category : #'api - accessing' }
 RabbitMqHttpClient >> put: pathSegments body: body [
     ^ self request: 'PUT' path: pathSegments body: body
 ]
@@ -188,6 +209,10 @@ RabbitMqHttpClient >> request: method path: pathSegments body: body [
         ifFalse: [ (method = 'PUT') ifTrue: [client put]
         ifFalse: [ (method = 'DELETE') ifTrue: [client delete]
         ifFalse: [self error: 'Unknown HTTP method']]]].
+	response ifNil:
+		[ self error: (String streamContents: [ :stream |
+			stream << 'HTTP '.
+			client response statusLine printCodeAndReasonOn:  stream ]) ].
     ^ NeoJSONReader fromString: response contents
 ]
 
