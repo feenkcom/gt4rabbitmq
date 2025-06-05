@@ -25,13 +25,13 @@ RabbitMqQueueStatistics >> consumerDetails [
 ]
 
 { #category : #'as yet unclassified' }
-RabbitMqQueueStatistics >> consumers [
-	^ self rawData at: 'consumers'
+RabbitMqQueueStatistics >> consumerUtilisation [
+	^ self rawData at: 'consumer_utilisation'
 ]
 
 { #category : #'as yet unclassified' }
-RabbitMqQueueStatistics >> consumerUtilisation [
-	^ self rawData at: 'consumer_utilisation'
+RabbitMqQueueStatistics >> consumers [
+	^ self rawData at: 'consumers'
 ]
 
 { #category : #'as yet unclassified' }
@@ -115,6 +115,11 @@ RabbitMqQueueStatistics >> messageBytesUnacknowledged [
 ]
 
 { #category : #accessing }
+RabbitMqQueueStatistics >> messageStatistics [
+	^ self rawData at: 'message_stats'
+]
+
+{ #category : #accessing }
 RabbitMqQueueStatistics >> messages [
 	^ self rawData at: 'messages'
 ]
@@ -152,11 +157,6 @@ RabbitMqQueueStatistics >> messagesReadyDetails [
 { #category : #accessing }
 RabbitMqQueueStatistics >> messagesReadyRam [
 	^ self rawData at: 'messages_ready_ram'
-]
-
-{ #category : #accessing }
-RabbitMqQueueStatistics >> messageStatistics [
-	^ self rawData at: 'message_stats'
 ]
 
 { #category : #accessing }
@@ -226,9 +226,9 @@ RabbitMqQueueStatistics >> summaryAttributes [
 	messageStats := self messageStatistics.
 	incoming := String streamContents: [ :stream |
 		stream
-			print: (messageStats at: 'get');
+			print: (messageStats at: 'publish');
 			<< ' (';
-			print: ((messageStats at: 'get_details') at: 'rate');
+			print: ((messageStats at: 'publish_details') at: 'rate');
 			<< '/s)' ].
 	deliver := String streamContents: [ :stream |
 		stream
