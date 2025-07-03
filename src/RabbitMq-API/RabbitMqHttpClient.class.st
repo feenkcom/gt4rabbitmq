@@ -98,6 +98,11 @@ RabbitMqHttpClient >> deletePath: pathSegments [
 ]
 
 { #category : #'api - accessing' }
+RabbitMqHttpClient >> deleteQueue: queueNameString vhost: vHostString [
+    ^ self deletePath: { 'queues'. vHostString. queueNameString. }
+]
+
+{ #category : #'api - accessing' }
 RabbitMqHttpClient >> deprecatedFeatures [
     ^ self get: { 'deprecated-features' }
 ]
