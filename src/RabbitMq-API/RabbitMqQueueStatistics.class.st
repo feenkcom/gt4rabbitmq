@@ -232,15 +232,23 @@ RabbitMqQueueStatistics >> summaryAttributes [
 			<< '/s)' ].
 	deliver := String streamContents: [ :stream |
 		stream
-			print: (messageStats at: 'deliver');
+			print: (messageStats at: 'deliver'
+				ifAbsent: [ 'N/A' ]);
 			<< ' (';
-			print: ((messageStats at: 'deliver_details') at: 'rate');
+			print: (messageStats at: 'deliver_details'
+				ifPresent: [ :aDict | aDict at: 'rate'
+					ifAbsent: [ 'N/A' ] ]
+				ifAbsent: [ 'N/A' ]);
 			<< '/s)' ].
 	ack := String streamContents: [ :stream |
 		stream
-			print: (messageStats at: 'ack');
+			print: (messageStats at: 'ack'
+				ifAbsent: [ 'N/A' ]);
 			<< ' (';
-			print: ((messageStats at: 'ack_details') at: 'rate');
+			print: (messageStats at: 'ack_details'
+				ifPresent: [ :aDict | aDict at: 'rate'
+					ifAbsent: [ 'N/A' ] ]
+				ifAbsent: [ 'N/A' ]);
 			<< '/s)' ].
 	^ {
 		{ 'Ready'. self messagesReady. }.
